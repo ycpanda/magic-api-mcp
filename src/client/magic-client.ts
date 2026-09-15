@@ -24,6 +24,17 @@ export class MagicClient {
     return this.config.baseUrl;
   }
 
+  /** 接口运行基址：baseUrl + 配置的 prefix（如 srvhub），用于 runApi 拼接真实路径 */
+  getApiBase(): string {
+    const prefix = this.config.prefix?.replace(/^\/+|\/+$/g, "") ?? "";
+    return prefix ? `${this.config.baseUrl}/${prefix}` : this.config.baseUrl;
+  }
+
+  /** 当前配置的接口路径前缀（已规范化，无首尾斜杠） */
+  getApiPrefix(): string {
+    return this.config.prefix?.replace(/^\/+|\/+$/g, "") ?? "";
+  }
+
   isReadonly(): boolean {
     return this.config.readonly;
   }
@@ -127,13 +138,18 @@ export class MagicClient {
 
   /** 向真实接口发请求（被测接口的错误不算工具错误） */
   async runApi(runPath: string, opts: RunOptions): Promise<RunResult> {
-    const path = runPath.startsWith("/") ? runPath : `/${runPath}`;
+    const prefix = this.config.prefix?.replace(/^\/+|\/+$/g, "") ?? "";
+    let path = runPath.startsWith("/") ? runPath : `/${runPath}`;
+    // 防止与调用方已带前缀的路径重复拼接（如从 list_apis 拿到的完整路径）
+    if (prefix && path.startsWith(`/${prefix}`)) {
+      path = path.slice(prefix.length + 1) || "/";
+    }
     const sp = new URLSearchParams();
     for (const [k, v] of Object.entries(opts.params ?? {})) {
       if (v !== undefined && v !== null) sp.set(k, String(v));
     }
     const qs = sp.toString();
-    const url = `${this.getBase()}${path}${qs ? `?${qs}` : ""}`;
+    const url = `${this.getApiBase()}${path}${qs ? `?${qs}` : ""}`;
     const headers: Record<string, string> = { ...this.authHeaders(), ...(opts.headers ?? {}) };
     const init: RequestInit = {
       method: opts.method,

@@ -29,7 +29,7 @@ export const listApisTool: ToolDef<{ group?: string }, any[]> = {
         id: f.id,
         name: f.name,
         method: f.method,
-        path: resolveRunPath(f, "", index),
+        path: resolveRunPath(f, client.getApiPrefix(), index),
         group: groupNames.get(f.groupId) ?? "",
       }));
   },
@@ -83,7 +83,7 @@ export const createApiTool: ToolDef<CreateApiArgs, { id: string; runPath: string
     };
     const id = await saveFile(client, "api", body);
     const index = buildGroupPathIndex(await fetchTree(client));
-    const runPath = resolveRunPath({ ...body, id } as ApiInfo, "", index);
+    const runPath = resolveRunPath({ ...body, id } as ApiInfo, client.getApiPrefix(), index);
     return { id, runPath };
   },
 };

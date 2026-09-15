@@ -103,6 +103,36 @@ describe("MagicClient.runApi", () => {
   });
 });
 
+describe("MagicClient.runApi prefix", () => {
+  it("prepends MAGIC_API_PREFIX to the live endpoint URL", async () => {
+    let seenUrl = "";
+    server.use(
+      http.get("http://ma/srvhub/api/hello", ({ request }) => {
+        seenUrl = request.url;
+        return new HttpResponse("ok", { status: 200 });
+      })
+    );
+    const c = new MagicClient(cfg({ prefix: "srvhub" }));
+    const r = await c.runApi("/api/hello", { method: "GET" });
+    expect(seenUrl).toContain("/srvhub/api/hello");
+    expect(r.status).toBe(200);
+  });
+
+  it("does not double-prefix when path already includes the prefix", async () => {
+    let seenUrl = "";
+    server.use(
+      http.get("http://ma/srvhub/api/hello", ({ request }) => {
+        seenUrl = request.url;
+        return new HttpResponse("ok", { status: 200 });
+      })
+    );
+    const c = new MagicClient(cfg({ prefix: "srvhub" }));
+    await c.runApi("/srvhub/api/hello", { method: "GET" });
+    expect(seenUrl).toContain("/srvhub/api/hello");
+    expect(seenUrl).not.toContain("/srvhub/srvhub");
+  });
+});
+
 describe("MagicClient usePostForGet", () => {
   it("uses POST instead of GET when usePostForGet is true", async () => {
     let method = "";

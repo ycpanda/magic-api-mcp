@@ -40,7 +40,7 @@ interface ApiQuery {
 }
 
 /** name 或 path+method → id */
-export function resolveApiId(tree: ResourceTree, q: ApiQuery): string {
+export function resolveApiId(tree: ResourceTree, q: ApiQuery, prefix = ""): string {
   const files = collectFiles(tree, "api");
   const index = buildGroupPathIndex(tree);
   let matches = files;
@@ -49,7 +49,7 @@ export function resolveApiId(tree: ResourceTree, q: ApiQuery): string {
   } else if (q.path) {
     matches = files.filter(
       (f) =>
-        resolveRunPath(f, "", index) === q.path &&
+        resolveRunPath(f, prefix, index) === q.path &&
         (!q.method || f.method.toUpperCase() === q.method.toUpperCase())
     );
   }
@@ -59,7 +59,7 @@ export function resolveApiId(tree: ResourceTree, q: ApiQuery): string {
   if (matches.length > 1) {
     throw new Error(
       `匹配到多个接口，请用 path+method 精确指定：${matches
-        .map((m) => `${m.method} ${resolveRunPath(m, "", index)} (${m.name})`)
+        .map((m) => `${m.method} ${resolveRunPath(m, prefix, index)} (${m.name})`)
         .join("; ")}`
     );
   }
