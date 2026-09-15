@@ -10,7 +10,7 @@ import {
 } from "./task.js";
 import { getFunctionTool, listFunctionsTool } from "./functions.js";
 import { listDatasourcesTool } from "./datasource.js";
-import { magicScriptHelpTool, searchCodeTool } from "./knowledge.js";
+import { magicScriptHelpTool, searchCodeTool, searchKnowledgeTool } from "./knowledge.js";
 
 export const allTools: ToolDef<any, any>[] = [
   listGroupsTool, createGroupTool,
@@ -18,7 +18,7 @@ export const allTools: ToolDef<any, any>[] = [
   listTasksTool, getTaskTool, createTaskTool, updateTaskTool,
   enableTaskTool, disableTaskTool, deleteTaskTool, runTaskTool,
   listFunctionsTool, getFunctionTool, listDatasourcesTool,
-  magicScriptHelpTool, searchCodeTool,
+  magicScriptHelpTool, searchCodeTool, searchKnowledgeTool,
 ];
 
 export function isWriteTool(name: string): boolean {

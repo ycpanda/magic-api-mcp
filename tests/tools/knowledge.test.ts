@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { server } from "../setup";
 import { MagicClient } from "../../src/client/magic-client.js";
 import type { Config } from "../../src/config.js";
-import { magicScriptHelpTool, searchCodeTool } from "../../src/tools/knowledge.js";
+import { magicScriptHelpTool, searchCodeTool, searchKnowledgeTool } from "../../src/tools/knowledge.js";
 
 const cfg: Config = { baseUrl: "http://ma", webPath: "/magic/web", readonly: false, prefix: "" };
 
@@ -15,7 +15,15 @@ describe("magic_script_help", () => {
   });
   it("returns full doc overview when topic not found", async () => {
     const res = await magicScriptHelpTool.handler(new MagicClient(cfg), { topic: "不存在的主题xyz" });
-    expect(res).toContain("magic-script");
+    expect(res).toContain("magic-api 知识库文档分类");
+  });
+});
+
+describe("search_knowledge", () => {
+  it("returns ranked snippets for a query", async () => {
+    const res = await searchKnowledgeTool.handler(new MagicClient(cfg), { query: "date" });
+    expect(typeof res).toBe("string");
+    expect(res).toContain("命中");
   });
 });
 

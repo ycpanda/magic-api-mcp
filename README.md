@@ -23,7 +23,7 @@ npm run build
 | `MAGIC_API_TOKEN` | 否\* | — | 静态 token |
 | `MAGIC_API_USERNAME` / `MAGIC_API_PASSWORD` | 否\* | — | 账号密码（自动 login） |
 | `MAGIC_API_READONLY` | 否 | `false` | 只读模式，禁用写工具 |
-| `MAGIC_API_PREFIX` | 否 | 空 | 接口路径前缀 |
+| `MAGIC_API_PREFIX` | 否 | 空 | 接口路径前缀（如 `srvhub`）；配置后 `run_api` 自动补前缀，`list_apis` 也会显示真实可跑路径 |
 | `MAGIC_API_TRANSPORT` | 否 | `stdio` | `stdio` 或 `http` |
 | `MAGIC_API_HTTP_PORT` | 否 | `3111` | http 模式监听端口 |
 | `MAGIC_API_HTTP_HOST` | 否 | `0.0.0.0` | http 模式监听地址 |
@@ -157,9 +157,27 @@ claude mcp add --transport http magic-api http://部署机:3111/mcp \
 - 分组：`list_groups` `create_group`
 - 函数：`list_functions` `get_function`
 - 数据源：`list_datasources`
-- 知识：`magic_script_help` `search_code`
+- 知识：`magic_script_help` `search_knowledge` `search_code`
 
 只读模式（`MAGIC_API_READONLY=true`）下，写工具被隐藏并在调用时拒绝。
+
+## 知识库（内嵌官方文档）
+
+`src/knowledge/` 内置 magic-api 官方文档（71 篇，按「指南 / API / 配置 / 其它」分类）。`npm run build` 时会自动 `cp -r src/knowledge dist`，文档随 `dist` 一起加载，**无需联网**即可查询。
+
+三个知识类工具：
+
+- **`magic_script_help {topic}`** —— 按主题返回**最相关文档的完整内容**（单篇）。
+  - `topic` 关键词示例：`db` / `http` / `date` / `分页` / `自定义函数` / `事务` / `多数据源` / `统一响应`。
+  - 不传 `topic`（或留空）会**列出全部文档分类**，可先浏览再细查。
+  - 命中内容过长会截断，并提示改用 `search_knowledge` 精确定位。
+- **`search_knowledge {query, limit?}`** —— 跨全部文档**全文检索**，返回 top-N 片段 + 出处文件 + 打分，适合模糊 / 多文档查询（如 `时间格式化` / `ES 插件` / `统一异常处理`）。`limit` 默认 6，最大 15。
+- **`search_code {keyword}`** —— ⚠️ 注意区分：它搜的是**线上 magic-api 的接口 / 函数脚本代码**，不是文档。
+
+对话示例：
+
+- 「用 `magic_script_help` 查一下 date 函数怎么用」
+- 「用 `search_knowledge` 找一下 ES 插件怎么配置」
 
 ## 冒烟测试
 
@@ -174,7 +192,7 @@ node scripts/smoke.mjs
 ## 开发
 
 ```bash
-npm test        # 单元 + 集成（73 测试）
+npm test        # 单元 + 集成（93 测试）
 npm run dev     # tsx 直跑（stdio）
 npm run build
 ```
