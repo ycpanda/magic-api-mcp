@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "bin": { "magic-api-mcp": "dist/index.js" },
+  "bin": {
+    "magic-api-mcp": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc && cp -r src/knowledge dist",
+    "build:offline": "node build-offline.mjs",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "test": "vitest run",
@@ -17,6 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "esbuild": "^0.28.2",
     "msw": "^2.3.0",
     "tsx": "^4.0.0",
     "typescript": "^5.4.0",

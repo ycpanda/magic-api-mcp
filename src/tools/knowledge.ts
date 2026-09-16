@@ -7,9 +7,14 @@ import type { ToolDef } from "./group.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/** 知识库目录：优先取编译产物 dist/knowledge，回退源码 src/knowledge */
+/** 知识库目录：兼容两种构建布局
+ *  - 单文件打包：dist/index.js → dist/knowledge
+ *  - tsc 多文件：dist/tools/knowledge.js → dist/knowledge
+ *  - 回退源码：src/knowledge
+ */
 function resolveKnowledgeDir(): string | null {
   const candidates = [
+    join(__dirname, "knowledge"),
     join(__dirname, "..", "knowledge"),
     join(__dirname, "..", "..", "src", "knowledge"),
   ];
